@@ -1,0 +1,8 @@
+Branch name suggestion: add-spapi-python-amazon-sp-api
+
+To push and open a PR locally:
+
+git checkout -b add-spapi-python-amazon-sp-api
+git add requirements.txt
+git commit -m "chore: add python-amazon-sp-api to requirements.txt (detected by CI)"
+git push -u origin add-spapi-python-amazon-sp-api

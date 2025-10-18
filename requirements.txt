@@ -1,0 +1,7 @@
+boto3
+botocore
+requests
+gspread
+pytest
+pytest-cov
+python-amazon-sp-api
