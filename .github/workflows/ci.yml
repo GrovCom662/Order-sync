@@ -1,0 +1,51 @@
+name: Detect sp_api provider
+
+on:
+  push:
+    branches: [ 'ci/add-sp-api-candidate-workflow' ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  detect-spapi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Detect sp_api provider and write candidate
+        run: |
+          set -euo pipefail
+          candidates=(python-amazon-sp-api sp-api amazon-sp-api selling-partner-api)
+          echo "NONE" > sp_api_candidate.txt
+          for pkg in "${candidates[@]}"; do
+            echo "Trying $pkg"
+            python -m pip install --disable-pip-version-check --no-cache-dir "$pkg" || true
+            python - <<'PY'
+import sys
+try:
+    import sp_api
+    sys.exit(0)
+except Exception:
+    sys.exit(1)
+PY
+            rc=$? || true
+            if [ "$rc" -eq 0 ]; then
+              echo "$pkg" > sp_api_candidate.txt
+              break
+            fi
+          done
+
+      - name: Show candidate
+        run: cat sp_api_candidate.txt || true
+
+      - name: Upload sp_api candidate result
+        uses: actions/upload-artifact@v4
+        with:
+          name: sp_api_candidate
+          path: sp_api_candidate.txt
